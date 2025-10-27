@@ -1,0 +1,17 @@
+# Data processing
+pandas
+numpy
+statsmodels
+
+# Data visualisation
+matplotlib
+seaborn
+wordcloud
+
+# Web App
+django
+djangorestframework
+djangorestframework-simplejwt
+
+# others
+jupyter

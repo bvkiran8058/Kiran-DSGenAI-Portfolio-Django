@@ -1,0 +1,62 @@
+DSGenAI_Portfolio/
+├── manage.py
+├── README.md
+├── requirements.txt
+├── .env                    # for sensitive settings (SECRET_KEY, DB credentials, etc)
+├── .gitignore
+├── portfolio_project/      # Django project folder
+│   ├── __init__.py
+│   ├── settings/
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── dev.py
+│   │   └── prod.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+├── apps/                   # your Django apps folder
+│   ├── __init__.py
+│   ├── website/            # for your public portfolio website pages
+│   │   ├── migrations/
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   ├── serializers.py  # (optional if website pages also serve API)
+│   │   ├── templates/
+│   │   │   └── website/
+│   │   │       ├── base.html
+│   │   │       ├── home.html
+│   │   │       └── about.html
+│   │   └── static/
+│   │       └── website/
+│   │           ├── css/
+│   │           ├── js/
+│   │           └── images/
+│   ├── api/                # REST API app powered by DRF
+│   │   ├── migrations/
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py       # e.g., Project, Technology, BlogPost, etc.
+│   │   ├── serializers.py
+│   │   ├── views.py        # API views / viewsets
+│   │   ├── urls.py         # e.g., /api/v1/projects/, etc.
+│   │   ├── permissions.py  # custom permission classes (if needed)
+│   │   └── tests.py
+│   └── users/              # optional: for user-management (if you allow login)
+│       ├── migrations/
+│       ├── admin.py
+│       ├── apps.py
+│       ├── models.py       # custom user model (optional)
+│       ├── serializers.py
+│       ├── views.py
+│       ├── urls.py
+│       └── tests.py
+├── templates/              # global templates (if any)
+│   └── ... 
+├── static/                 # global static files (if any)
+│   ├── css/
+│   ├── js/
+│   └── images/
+└── media/                  # for uploaded files (if applicable)
