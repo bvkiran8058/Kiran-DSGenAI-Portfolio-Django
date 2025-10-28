@@ -317,3 +317,98 @@ or
 `Next: Give API Folder Structure`
 
 🔥 Let’s build this like a real-world backend engineer!
+============================================================================================================================
+
+Here’s a detailed list of **fields** you should include for the **User** and **Profile** models in your **`users` app** for the project **Kiran-DSGenAI-Portfolio_with-Django**.
+These are designed to represent a complete **portfolio-style data scientist + GenAI professional profile**.
+
+---
+
+## 🧍‍♂️ **User Model (Custom or Django’s Default User Extension)**
+
+If you’re using a **custom user model**, extend `AbstractUser`.
+If not, you can use Django’s built-in `User` and attach a `Profile` via OneToOne relation.
+
+### **Fields**
+
+| Field Name            | Type                                                         | Description                       |
+| --------------------- | ------------------------------------------------------------ | --------------------------------- |
+| **id**                | AutoField (Primary Key)                                      | Auto-generated user ID            |
+| **username**          | CharField (unique)                                           | Username for login                |
+| **email**             | EmailField (unique)                                          | For login and communication       |
+| **first_name**        | CharField                                                    | User’s first name                 |
+| **last_name**         | CharField                                                    | User’s last name                  |
+| **password**          | CharField                                                    | Hashed password                   |
+| **is_active**         | BooleanField                                                 | Indicates if the user is active   |
+| **is_staff**          | BooleanField                                                 | Access to admin panel             |
+| **is_superuser**      | BooleanField                                                 | Superuser privileges              |
+| **date_joined**       | DateTimeField                                                | When the user registered          |
+| **last_login**        | DateTimeField                                                | Last login timestamp              |
+| **role**              | ChoiceField (`Admin`, `Visitor`, `Recruiter`, `Contributor`) | Role-based access differentiation |
+| **email_verified**    | BooleanField                                                 | To track if email is verified     |
+| **profile_completed** | BooleanField                                                 | Whether profile info is filled    |
+
+---
+
+## 👤 **Profile Model**
+
+Connected via **OneToOneField(User)** — this model holds detailed professional and personal portfolio information.
+
+### **Personal Info**
+
+| Field Name          | Type                | Description                          |                   |
+| ------------------- | ------------------- | ------------------------------------ | ----------------- |
+| **user**            | OneToOneField(User) | Linked to Django user                |                   |
+| **headline**        | CharField           | Short tagline (e.g. “Data Scientist  | GenAI Developer”) |
+| **bio**             | TextField           | Short professional summary           |                   |
+| **profile_picture** | ImageField          | Profile photo                        |                   |
+| **location**        | CharField           | City, Country                        |                   |
+| **date_of_birth**   | DateField           | Optional, used for detailed profiles |                   |
+| **phone_number**    | CharField           | Optional contact info                |                   |
+
+---
+
+### **Professional Info**
+
+| Field Name              | Type                   | Description                                     |
+| ----------------------- | ---------------------- | ----------------------------------------------- |
+| **designation**         | CharField              | Current title (e.g. “Data Scientist”)           |
+| **company**             | CharField              | Current company name                            |
+| **skills**              | JSONField / ManyToMany | List of skills (e.g. Python, Django, ML, GenAI) |
+| **years_of_experience** | IntegerField           | Total work experience                           |
+| **education**           | JSONField              | Degree, university, year (stored as JSON)       |
+| **certifications**      | JSONField              | List of certifications with issuer/date         |
+| **achievements**        | TextField              | Notable achievements or awards                  |
+| **projects_count**      | IntegerField           | Auto-updated based on portfolio projects        |
+| **resume**              | FileField              | Uploaded resume (PDF)                           |
+
+---
+
+### **Online & Social Links**
+
+| Field Name            | Type     | Description             |
+| --------------------- | -------- | ----------------------- |
+| **github_url**        | URLField | Link to GitHub profile  |
+| **linkedin_url**      | URLField | LinkedIn profile        |
+| **kaggle_url**        | URLField | Kaggle profile          |
+| **portfolio_website** | URLField | Personal website link   |
+| **medium_url**        | URLField | Blog or Medium profile  |
+| **twitter_url**       | URLField | X/Twitter profile       |
+| **youtube_url**       | URLField | YouTube or demo channel |
+
+---
+
+### **Meta / Additional Info**
+
+| Field Name       | Type                                                     | Description                             |
+| ---------------- | -------------------------------------------------------- | --------------------------------------- |
+| **created_at**   | DateTimeField                                            | Auto-added when created                 |
+| **updated_at**   | DateTimeField                                            | Auto-updated on changes                 |
+| **views_count**  | IntegerField                                             | Profile views count                     |
+| **is_featured**  | BooleanField                                             | Whether the profile appears on homepage |
+| **availability** | ChoiceField (`Open to Work`, `Not Looking`, `Freelance`) | Availability for opportunities          |
+
+---
+
+Would you like me to continue next with **App #2 → Projects App** (to display your Data Science and GenAI projects, their tech stacks, and GitHub links)?
+That will include models like `Project`, `TechStack`, and endpoints for listing and filtering portfolio projects.
