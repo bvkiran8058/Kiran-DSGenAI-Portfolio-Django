@@ -1,46 +1,67 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 import string
-
-# Create your models here.
 
 class User(AbstractUser):
     email = models.EmailField(
         verbose_name='email',
         unique=True,
         blank=False,
-        help_text= 'enter your valid email',
+        help_text='Enter your valid email',
         error_messages={
-            "unique": ("A user with that email already exists."),
+            "unique": "A user with that email already exists.",
         },
     )
     password = models.CharField(
         'password',
-        help_text='Enter your password which has min length of 8 and special char and number and caps and small letter'
+        help_text='Enter your password (min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special char)'
     )
     role = models.CharField(
         max_length=15,
-        help_text= 'select anyone of these (`Admin`, `Visitor`, `Recruiter`, `Contributor`)',
+        help_text='Select one: Admin, Visitor, Recruiter, or Contributor',
         choices=[
-            ('admin', 'admin'),
-            ('visitor', 'visitor'),
-            ('recruiter', 'recruiter'),
-            ('contributor', 'contributor')
-        ]
+            ('admin', 'Admin'),
+            ('visitor', 'Visitor'),
+            ('recruiter', 'Recruiter'),
+            ('contributor', 'Contributor'),
+        ],
     )
     email_verified = models.BooleanField(default=False)
     profile_completed = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-        if self.password is not None:
+        if self.password:
             if len(self.password) < 8:
-                return "please provide password with atleat 8 chars"
-            elif not any(string.ascii_uppercase in self.password):
-                return "please give atleast one uppercase letter in password"
-            elif not any(string.ascii_lowercase in self.password):
-                return "please give atleast one lowercase letter in password"
-            elif not any(string.digits in self.password):
-                return "please give atleast one digit in password"
-            elif not any(string.punctuation in self.password):
-                return "please give atleast one special char in password"
+                raise ValidationError("Password must be at least 8 characters long.")
+            elif not any(c.isupper() for c in self.password):
+                raise ValidationError("Password must contain at least one uppercase letter.")
+            elif not any(c.islower() for c in self.password):
+                raise ValidationError("Password must contain at least one lowercase letter.")
+            elif not any(c.isdigit() for c in self.password):
+                raise ValidationError("Password must contain at least one digit.")
+            elif not any(c in string.punctuation for c in self.password):
+                raise ValidationError("Password must contain at least one special character.")
+
+            # Hash password before saving
+            self.set_password(self.password)
+
         super().save(*args, **kwargs)
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='profile'
+    )
+    headline = models.CharField(
+        max_length=100,
+        help_text="Short tagline (e.g. “Data Scientist  | GenAI Developer”)"
+    )
+    bio = models.TextField(
+        help_text='Short professional summary '
+    )
+    profile_picture =models.ImageField(
+        upload_to='profile photos/'
+    )
