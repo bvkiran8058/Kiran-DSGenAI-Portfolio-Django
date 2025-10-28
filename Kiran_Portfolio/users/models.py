@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import string
 
-special_characters = list(string.punctuation)
-string.
 # Create your models here.
 
 class User(AbstractUser):
@@ -35,5 +33,14 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         if self.password is not None:
-            if all()
+            if len(self.password) < 8:
+                return "please provide password with atleat 8 chars"
+            elif not any(string.ascii_uppercase in self.password):
+                return "please give atleast one uppercase letter in password"
+            elif not any(string.ascii_lowercase in self.password):
+                return "please give atleast one lowercase letter in password"
+            elif not any(string.digits in self.password):
+                return "please give atleast one digit in password"
+            elif not any(string.punctuation in self.password):
+                return "please give atleast one special char in password"
         super().save(*args, **kwargs)
