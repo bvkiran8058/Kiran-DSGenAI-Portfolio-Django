@@ -21,7 +21,7 @@ class CustomUser(AbstractUser):
     LANGUAGE_CHOICES = [
         ('TE', 'Telugu'),
         ('HI', 'Hindi'),
-        ('EN', 'English')
+        ('EN', 'English'),
         ('TA', 'Tamil'),
     ]
     preferred_language = models.CharField(
@@ -89,16 +89,41 @@ class LibrarianProfile(BaseProfile):
     )
 
 class MemberProfile(BaseProfile):
-    membership_number=
-    MEMBERSHIP_TYPES=[
-        ()
+    membership_number = models.BigIntegerField(unique=True)
+    
+    MEMBERSHIP_TYPES = [
+        ('REG', 'Regular'),
+        ('PREM', 'Premium'),
+        ('STU', 'Student'),
+        ('SEN', 'Senior Citizen'),
+        ('FAM', 'Family'),
+        ('ORG', 'Organization'),
     ]
-    membership_types =
-    registration_date =
-    membership_expiry = 
+    membership_type = models.CharField(max_length=5, choices=MEMBERSHIP_TYPES, default='REG')
+    
+    registration_date = models.DateField(auto_now_add=True)
+    membership_expiry = models.DateField(blank=True, null=True)
 
-    # address information
+    # Address Information
+    street_address = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=10)
+    country = models.CharField(max_length=100, default='India')
 
-    # emergency contact
+    # Emergency Contact
+    emergency_contact_name = models.CharField(max_length=100, blank=True, null=True)
+    emergency_contact_relation = models.CharField(max_length=50, blank=True, null=True)
+    emergency_contact_phone = models.CharField(max_length=10, blank=True, null=True)
 
-    # preferences
+    # Preferences
+    prefers_email_notifications = models.BooleanField(default=True)
+    preferred_genres = models.TextField(blank=True, null=True, help_text="Comma-separated list of favorite genres")
+    preferred_language = models.CharField(
+        max_length=2,
+        choices=CustomUser.LANGUAGE_CHOICES,
+        default='EN'
+    )
+
+    def __str__(self):
+        return f"Member #{self.membership_number} - {self.user.first_name} {self.user.last_name}"
