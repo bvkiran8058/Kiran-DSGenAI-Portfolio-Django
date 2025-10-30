@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 import string
+import datetime as dt
 
 class User(AbstractUser):
     email = models.EmailField(
@@ -75,6 +76,14 @@ class Profile(models.Model):
     )
     date_of_birth = models.DateField(null=True, blank=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.date_of_birth:
+            adult_age = dt.datetime(year=18)
+            if self.date_of_birth < adult_age:
+                raise ValidationError("Age must be greater than 18 years")
+            
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Profile of {self.user.username}"
