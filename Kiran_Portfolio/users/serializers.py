@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Profile, ProfessionalInfo, SocialLinks
+from .models import CustomUser, Profile, ProfessionalInfo, SocialLinks
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -31,7 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
     social_links = SocialLinksSerializer(read_only=True)
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = '__all__'
         extra_kwargs = {
             'password': {'write_only': True}
