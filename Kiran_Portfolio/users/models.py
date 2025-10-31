@@ -1,22 +1,31 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
-import string
 import datetime as dt
+import re
 
-class User(AbstractUser):
+
+def validate_password(raw_password):
+    if len(raw_password) < 8:
+        raise ValidationError("Password should be atleast 8 characters")
+    elif not re.search(r'[a-z]', raw_password):
+        raise ValidationError("Password should contains atleast one lowercase letter")
+    elif not re.search(r'[A-Z]', raw_password):
+        raise ValidationError("Password should contains atleast one uppercase letter")
+    elif not re.search(r'[\d]', raw_password):
+        raise ValidationError("Password should contains atleast one digit")
+    elif not re.search(r'[@#$%&*?/]', raw_password):
+        raise ValidationError("Password should contains atleast one special character")
+    
+
+class CustomUser(AbstractUser):
     email = models.EmailField(
         verbose_name='email',
         unique=True,
-        blank=False,
         help_text='Enter your valid email',
         error_messages={
             "unique": "A user with that email already exists.",
         },
-    )
-    password = models.CharField(
-        'password',
-        help_text='Enter your password (min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special char)'
     )
     role = models.CharField(
         max_length=15,
@@ -31,40 +40,33 @@ class User(AbstractUser):
     email_verified = models.BooleanField(default=False)
     profile_completed = models.BooleanField(default=False)
 
-    def save(self, *args, **kwargs):
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name']
+
+    def clean(self):
         if self.password:
-            if len(self.password) < 8:
-                raise ValidationError("Password must be at least 8 characters long.")
-            elif not any(c.isupper() for c in self.password):
-                raise ValidationError("Password must contain at least one uppercase letter.")
-            elif not any(c.islower() for c in self.password):
-                raise ValidationError("Password must contain at least one lowercase letter.")
-            elif not any(c.isdigit() for c in self.password):
-                raise ValidationError("Password must contain at least one digit.")
-            elif not any(c in string.punctuation for c in self.password):
-                raise ValidationError("Password must contain at least one special character.")
-
-            # Hash password before saving
-            self.set_password(self.password)
-
-        super().save(*args, **kwargs)
+            validate_password(self.password)
+        return super().clean()
 
     def __str__(self):
         return f"{self.username} - role -  ({self.role})"
+    
+def validate_age(date_of_birth):
+    today = dt.date.today()
+    age = today.year - date_of_birth.year - (
+        (today.month, today.day) < (date_of_birth.month, date_of_birth.day)
+    )
+    if age < 13:
+        raise ValidationError("User must be at least 13 years old.")
 
 class Profile(models.Model):
     user = models.OneToOneField(
-        User,
+        CustomUser,
         on_delete=models.CASCADE,
         related_name='profile'
     )
-    headline = models.CharField(
-        max_length=100,
-        help_text="Short tagline (e.g. “Data Scientist | GenAI Developer”)"
-    )
-    bio = models.TextField(
-        help_text='Short professional summary'
-    )
+    headline = models.CharField(max_length=100, help_text="Short tagline (e.g. “Data Scientist | GenAI Developer”)")
+    bio = models.TextField(help_text='Short professional summary')
     profile_picture = models.ImageField(
         upload_to='profile_photos/',
         null=True,
@@ -74,16 +76,9 @@ class Profile(models.Model):
         max_length=100,
         help_text="City, Country"
     )
-    date_of_birth = models.DateField(null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True, validators=[validate_age])
     phone_number = models.CharField(max_length=15, blank=True, null=True)
-
-    def save(self, *args, **kwargs):
-        if self.date_of_birth:
-            adult_age = dt.datetime(year=18)
-            if self.date_of_birth < adult_age:
-                raise ValidationError("Age must be greater than 18 years")
-            
-        super().save(*args, **kwargs)
+    
 
     def __str__(self):
         return f"Profile of {self.user.username}"
@@ -91,33 +86,17 @@ class Profile(models.Model):
 
 class ProfessionalInfo(models.Model):
     user = models.OneToOneField(
-        User,
+        CustomUser,
         on_delete=models.CASCADE,
         related_name='professional_info'
     )
-    designation = models.CharField(
-        max_length=100,
-        help_text="Current title (e.g. Data Scientist)"
-    )
-    company = models.CharField(
-        max_length=150,
-        blank=True,
-        help_text="Current company name"
-    )
-    skills = models.JSONField(
-        default=list,
-        help_text="List of skills (e.g. ['Python', 'Django', 'ML'])"
-    )
+    designation = models.CharField(max_length=100, help_text="Current title (e.g. Data Scientist)")
+    company = models.CharField(max_length=150, blank=True, help_text="Current company name")
+    skills = models.JSONField(default=dict, help_text="List of skills (e.g. 'languages': ['Python', 'c'], 'frameworks':['django', 'langchain'])")
     years_of_experience = models.PositiveIntegerField(default=0)
-    education = models.JSONField(
-        default=list,
-        help_text="List of dicts: [{'degree': 'B.Tech', 'university': 'IIT', 'year': 2020}]"
-    )
-    certifications = models.JSONField(
-        default=list,
-        help_text="List of certifications with issuer/date"
-    )
-    achievements = models.TextField(blank=True)
+    education = models.JSONField(default=list, help_text="List of dicts: [{'degree': 'B.Tech', 'university': 'IIT', 'year': 2020}]")
+    certifications = models.JSONField(default=list, blank=True, null= True, help_text="List of certifications with issuer/date")
+    achievements = models.TextField(blank=True, null=True)
     projects_count = models.PositiveIntegerField(default=0)
     resume = models.FileField(
         upload_to='resumes/',
@@ -132,7 +111,7 @@ class ProfessionalInfo(models.Model):
 
 class SocialLinks(models.Model):
     user = models.OneToOneField(
-        User,
+        CustomUser,
         on_delete=models.CASCADE,
         related_name='social_links'
     )
