@@ -1,5 +1,5 @@
-**/migrations/
 /.vscode/
+**/db.sqlite3
 __pycache__/
 n.ipynb
 n.py
