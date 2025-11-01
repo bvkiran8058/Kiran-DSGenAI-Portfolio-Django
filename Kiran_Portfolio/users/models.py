@@ -27,15 +27,16 @@ class CustomUser(AbstractUser):
             "unique": "A user with that email already exists.",
         },
     )
+    class RoleChoices(models.TextChoices):
+        ADMIN = 'admin', 'Admin'
+        VISITOR = 'visitor', 'Visitor'
+        RECRUITER = 'recruiter', 'Recruiter'
+        CONTRIBUTOR = 'contributor', 'Contributor'
     role = models.CharField(
         max_length=15,
         help_text='Select one: Admin, Visitor, Recruiter, or Contributor',
-        choices=[
-            ('admin', 'Admin'),
-            ('visitor', 'Visitor'),
-            ('recruiter', 'Recruiter'),
-            ('contributor', 'Contributor'),
-        ],
+        choices=RoleChoices,
+        default=RoleChoices.VISITOR
     )
     email_verified = models.BooleanField(default=False)
     profile_completed = models.BooleanField(default=False)

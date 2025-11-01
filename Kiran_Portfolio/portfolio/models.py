@@ -7,6 +7,9 @@ class Technology(models.Model):
     category = models.CharField(max_length=128, help_text="eg.programming language, web framework")
     description = models.TextField(blank=True, null= True)
 
+class Tag(models.Model):
+    tag = models.CharField(max_length=100)
+
 class Project(models.Model):
     user = models.ForeignKey(
         'users.CustomUser',
@@ -15,8 +18,9 @@ class Project(models.Model):
     )
     title = models.CharField(max_length=128, help_text="Enter project title")
     description = models.TextField()
-    tech_stack = models.ManyToManyField(Technology)
+    tech_stack = models.ManyToManyField(Technology, blank=True, null= True)
     github_link = models.URLField()
     image = models.ImageField(upload_to='project_images/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     featured = models.BooleanField(default=False)
+    tags = models.ManyToManyField(Tag, blank=True)
